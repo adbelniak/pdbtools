@@ -17,6 +17,7 @@ import sys, time, string, os, shutil
 from . import atom_renumber, charmm
 from .helper import container
 from .data.common import *
+from .atom_renumber import pdbAtomRenumber
 
 class PdbCleanError(Exception):
     """
@@ -102,9 +103,9 @@ def stripACS(coord):
         Mini function that removes letters that denote ACS.
         """
 
-        if line[16] in string.letters:
+        if line[16] in string.ascii_letters:
             line = "%s %s" % (line[:16],line[17:])
-        if line[26] in string.letters:
+        if line[26] in string.ascii_letters:
             line = "%s %s" % (line[:26],line[27:])
 
         return line
@@ -313,8 +314,8 @@ def pdbClean(pdb,pdb_id="temp",chains="all",renumber_residues=False,
     # Add missing atoms using CHARMM
     print(log_fmt % "Adding heavy atoms using CHARMM.", end=' ')
     seqres = [l for l in header if l[0:6] == "SEQRES"]
-    coord = addMissingAtoms(coord,seqres,keep_temp,renumber_residues,pdb_id,
-                            fix_atoms,num_steps)
+    # coord = addMissingAtoms(coord,seqres,keep_temp,renumber_residues,pdb_id,
+    #                         fix_atoms,num_steps)
     log.append(log_fmt % "Missing heavy atoms were added with CHARMM.")
 
     # Renumber residues if requested
@@ -323,7 +324,7 @@ def pdbClean(pdb,pdb_id="temp",chains="all",renumber_residues=False,
         print(log[-1], end=' ')
 
     # Renumber atoms from 1
-    coord = pdb_atom_renumber.pdbAtomRenumber(coord)
+    coord = pdbAtomRenumber(coord)
     log.append(log_fmt % "Renumbered atoms from 1")
     print(log[-1], end=' ')
 
